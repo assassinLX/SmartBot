@@ -67,6 +67,18 @@ public class FunctionUI : MonoBehaviour {
     private void popInCurrentStack(int index)
     {
         this.currentStack[index]=null;
+        for(var i = 0; i < this.currentStack.Length-1 ;i++)
+        {
+            if(this.currentStack[i] == null)
+            {
+                if(this.currentStack[i+1] != null)
+                {
+
+                    this.currentStack[i] = this.currentStack[i + 1];
+                    this.currentStack[i + 1] = null;
+                }
+            }
+        }
     }
 
     private void chooseCurrentinstractStack(GameObject gameObj,
