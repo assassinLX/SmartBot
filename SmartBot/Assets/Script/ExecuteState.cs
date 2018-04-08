@@ -1,9 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
 
 public class ExecuteState : MonoBehaviour {
+    public Vector3 StarPosition;
+    public GameObject CurrentVector;
+    public NavMeshAgent agent;
 
     public Button Btn_State;
     private Text Text_State;
@@ -18,6 +22,7 @@ public class ExecuteState : MonoBehaviour {
     public string[] Sub_Main;
 
     public GameObject Main_Character;
+    public Animator controller;
 
     private void Awake()
     {
@@ -52,6 +57,9 @@ public class ExecuteState : MonoBehaviour {
         {
             this.isRun = State.runFinish;
         }
+        agent.isStopped = true;
+        Main_Character.transform.position = StarPosition;
+        setAnimator(false, false, false);
     }
 
     private void Update()
@@ -82,7 +90,7 @@ public class ExecuteState : MonoBehaviour {
 
     private void UpdateRun(string [] currentStack)
     {
-        Debug.Log("UpdateRun:八月中秋白露，行人路上凄凉；");
+        
         foreach (var item in currentStack)
         {
             switch (item)
@@ -104,6 +112,7 @@ public class ExecuteState : MonoBehaviour {
                     Debug.Log("Jump");
                     break;
                 case "Function":
+                    Function();
                     Debug.Log("Function");
                     break;
             }
@@ -114,22 +123,52 @@ public class ExecuteState : MonoBehaviour {
     
     void GoAhead()
     {
-
         StartCoroutine(move());
-    
     }
     
     IEnumerator move()
     {
-        var targe = Main_Character.transform.position + Vector3.forward;
-        var position = Main_Character.transform.position;
-        var RelativeLocaltion = targe - position;
-        for (float i = 0; i < RelativeLocaltion.magnitude; i += Time.deltaTime)
-        {
-            yield return new WaitForSeconds(Time.deltaTime);
-            Main_Character.transform.position += Vector3.forward * Time.deltaTime * 2;
-            Debug.Log("1111");
-        }
+        setAnimator(true, false, false);
+        agent.isStopped = false;
+        yield return new WaitForSeconds(0.2f);
+        var targe = CurrentVector.transform.position;
+        agent.SetDestination(targe);
+        //应该获取当前的我的位置 到目标位置的路径
+        yield return new WaitForSeconds(0.1f);
+        setAnimator(false, true, false);
+    }
+    
+    void Light()
+    {
+
+    }
+
+    void LeftRotation()
+    {
+
+    }
+
+    void RightRotation()
+    {
+
+    }
+
+    void Jump()
+    {
+
+    }
+
+    void Function()
+    {
+        UpdateRun(this.Sub_Main);
+    }
+
+
+    private void setAnimator(bool isRun,bool isIdle,bool isJump)
+    {
+        this.controller.SetBool("isRun",isRun);
+        this.controller.SetBool("isIdle", isIdle);
+        this.controller.SetBool("isJump", isJump);
     }
 
 }
