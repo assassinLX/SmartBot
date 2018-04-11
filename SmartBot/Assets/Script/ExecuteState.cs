@@ -59,7 +59,9 @@ public class ExecuteState : MonoBehaviour {
         }
         agent.isStopped = true;
         Main_Character.transform.position = StarPosition;
-        setAnimator(false, false, false);
+        StopAllCoroutines();
+        setAnimator(false, true, false);
+      
     }
 
     private void Update()
@@ -79,18 +81,20 @@ public class ExecuteState : MonoBehaviour {
 
         if(this.isRun == State.runFinish || this.isRun == State.stop)
         {
+            
             return;
         }
         else
         {
-            UpdateRun(this.Main);
+            StartCoroutine( UpdateRun(this.Main));
         }
 
     }
 
-    private void UpdateRun(string [] currentStack)
+    private IEnumerator UpdateRun(string [] currentStack)
     {
-        
+
+        this.isRun = State.runFinish;
         foreach (var item in currentStack)
         {
             switch (item)
@@ -116,10 +120,10 @@ public class ExecuteState : MonoBehaviour {
                     Debug.Log("Function");
                     break;
             }
+            yield return new WaitForSeconds(0.5f);
         }
-        this.isRun = State.runFinish;
+        
     }
-
     
     void GoAhead()
     {
@@ -130,37 +134,19 @@ public class ExecuteState : MonoBehaviour {
     {
         setAnimator(true, false, false);
         agent.isStopped = false;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
         var targe = CurrentVector.transform.position;
         agent.SetDestination(targe);
         //应该获取当前的我的位置 到目标位置的路径
         yield return new WaitForSeconds(0.1f);
         setAnimator(false, true, false);
+        Debug.Log("Move");
     }
     
-    void Light()
-    {
-
-    }
-
-    void LeftRotation()
-    {
-
-    }
-
-    void RightRotation()
-    {
-
-    }
-
-    void Jump()
-    {
-
-    }
 
     void Function()
     {
-        UpdateRun(this.Sub_Main);
+        StartCoroutine(UpdateRun(this.Sub_Main));
     }
 
 
