@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 public class ExecuteState : MonoBehaviour {
     public Vector3 StarPosition;
     public GameObject CurrentVector;
@@ -27,16 +27,14 @@ public class ExecuteState : MonoBehaviour {
     private void Awake()
     {
         isRun = State.stop;
-        Text_State = Btn_State.transform.GetChild(0).GetComponent<Text>();
+       // Text_State = Btn_State.transform.GetChild(0).GetComponent<Text>();
         Btn_State.onClick.AddListener(()=> Execute());
-
     }
 
     private void Start()
     {
         Main = GetComponent<FunctionUI>().instractStack;
         Sub_Main = GetComponent<FunctionUI>().subInstractStack;
-
     }
 
     private void Execute()
@@ -58,7 +56,7 @@ public class ExecuteState : MonoBehaviour {
             this.isRun = State.runFinish;
         }
         agent.isStopped = true;
-        Main_Character.transform.position = StarPosition;
+        Main_Character.transform.localPosition = StarPosition;
         StopAllCoroutines();
         setAnimator(false, true, false);
       
@@ -68,15 +66,15 @@ public class ExecuteState : MonoBehaviour {
     {
         if (this.isRun == State.run)
         {
-            Text_State.text = "停止";
+            //Text_State.text = "停止";
         }
         else if(this.isRun == State.stop)
         {
-            Text_State.text = "运行";
+           // Text_State.text = "运行";
         }
         else
         {
-            Text_State.text = "运行完毕";
+           // Text_State.text = "运行完毕";
         }
 
         if(this.isRun == State.runFinish || this.isRun == State.stop)
@@ -86,7 +84,7 @@ public class ExecuteState : MonoBehaviour {
         }
         else
         {
-            StartCoroutine( UpdateRun(this.Main));
+            StartCoroutine(UpdateRun(this.Main));
         }
 
     }
@@ -104,7 +102,8 @@ public class ExecuteState : MonoBehaviour {
                     GoAhead();
                     break;
                 case "Light":
-                    Debug.Log("Light");
+                    Debug.Log("GoLight");
+                    GoLight();
                     break;
                 case "LeftRotation":
                     Debug.Log("LeftRotation");
@@ -120,7 +119,7 @@ public class ExecuteState : MonoBehaviour {
                     Debug.Log("Function");
                     break;
             }
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.9f);
         }
         
     }
@@ -133,16 +132,39 @@ public class ExecuteState : MonoBehaviour {
     IEnumerator move()
     {
         setAnimator(true, false, false);
+        yield return new WaitForSeconds(0.2f);
+
         agent.isStopped = false;
-        yield return new WaitForSeconds(0.3f);
         var targe = CurrentVector.transform.position;
         agent.SetDestination(targe);
         //应该获取当前的我的位置 到目标位置的路径
-        yield return new WaitForSeconds(0.1f);
+      
+        yield return new WaitForSeconds(0.3f);
         setAnimator(false, true, false);
         Debug.Log("Move");
     }
     
+    
+    void GoLight(){
+        StartCoroutine(light());
+    }
+
+    IEnumerator light(){
+        setAnimator(false,false,true);
+        yield return new WaitForSeconds(0.2f);
+
+        var passObj = GameObject.FindWithTag(Content.PASS_GAME_TOLLGATE);
+        if (Vector3.Distance(passObj.transform.position,Main_Character.transform.position) < 1){
+            var nextTollagteName = passObj.GetComponent<NextObj>().NextTollGate;  
+            SceneManager.LoadScene(nextTollagteName);
+
+        }
+        yield return new WaitForSeconds(0.3f);
+        setAnimator(false,true,false);
+        Debug.Log("light");
+    }
+
+
 
     void Function()
     {
@@ -156,5 +178,6 @@ public class ExecuteState : MonoBehaviour {
         this.controller.SetBool("isIdle", isIdle);
         this.controller.SetBool("isJump", isJump);
     }
+
 
 }
