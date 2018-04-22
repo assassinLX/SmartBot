@@ -4,17 +4,20 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-public class ExecuteState : MonoBehaviour {
+
+
+public class ExecuteState : MonoBehaviour
+{
     public Vector3 StarPosition;
     public GameObject CurrentVector;
     public NavMeshAgent agent;
 
     public Button Btn_State;
-    private Text Text_State;
-    
+    private CImage CImage_State;
+
     public enum State
     {
-        run,stop, runFinish
+        run, stop, runFinish
     }
     public State isRun;
 
@@ -24,11 +27,14 @@ public class ExecuteState : MonoBehaviour {
     public GameObject Main_Character;
     public Animator controller;
 
+    private Quaternion StartRotation;
     private void Awake()
     {
         isRun = State.stop;
-       // Text_State = Btn_State.transform.GetChild(0).GetComponent<Text>();
-        Btn_State.onClick.AddListener(()=> Execute());
+        CImage_State = Btn_State.transform.GetComponent<CImage>();
+        Btn_State.onClick.AddListener(() => Execute());
+        StartRotation = new Quaternion(0, 0, 0, 0);
+        StarPosition = new Vector3(-1.62f, -5.56f, 1.63f);
     }
 
     private void Start()
@@ -39,11 +45,11 @@ public class ExecuteState : MonoBehaviour {
 
     private void Execute()
     {
-        if(this.isRun == State.run)
+        if (this.isRun == State.run)
         {
             this.isRun = State.stop;
         }
-        else if(this.isRun == State.runFinish)
+        else if (this.isRun == State.runFinish)
         {
             this.isRun = State.stop;
         }
@@ -51,79 +57,88 @@ public class ExecuteState : MonoBehaviour {
         {
             this.isRun = State.run;
         }
-        if(Main[0] == null && this.isRun == State.run)
+        if (Main[0] == null && this.isRun == State.run)
         {
             this.isRun = State.runFinish;
         }
         agent.isStopped = true;
-        Main_Character.transform.localPosition = StarPosition;
+        Main_Character.transform.SetPositionAndRotation(StarPosition, StartRotation);
         StopAllCoroutines();
         setAnimator(false, true, false);
-      
     }
 
     private void Update()
     {
         if (this.isRun == State.run)
         {
-            //Text_State.text = "停止";
+            //"停止";
+            CImage_State.displaySprite("运行时");
         }
-        else if(this.isRun == State.stop)
+        else if (this.isRun == State.stop)
         {
-           // Text_State.text = "运行";
+            //"运行";
+            CImage_State.displaySprite("开始运行");
         }
         else
         {
-           // Text_State.text = "运行完毕";
+            //"运行完毕";
+            CImage_State.displaySprite("运行完成");
         }
 
-        if(this.isRun == State.runFinish || this.isRun == State.stop)
+        if (this.isRun == State.runFinish || this.isRun == State.stop)
         {
-            
+
             return;
         }
         else
         {
             StartCoroutine(UpdateRun(this.Main));
+          
         }
 
     }
 
-    private IEnumerator UpdateRun(string [] currentStack)
+    private IEnumerator UpdateRun(string[] currentStack)
     {
-
         this.isRun = State.runFinish;
         foreach (var item in currentStack)
         {
-            switch (item)
-            {
-                case "GoAhead":
-                    Debug.Log("GoAhead");
-                    GoAhead();
-                    break;
-                case "Light":
-                    Debug.Log("GoLight");
-                    GoLight();
-                    break;
-                case "LeftRotation":
-                    Debug.Log("LeftRotation");
-                    break;
-                case "RightRotation":
-                    Debug.Log("RightRotation");
-                    break;
-                case "Jump":
-                    Debug.Log("Jump");
-                    break;
-                case "Function":
-                    Function();
-                    Debug.Log("Function");
-                    break;
-            }
+            DealIns(item);
             yield return new WaitForSeconds(0.9f);
+
         }
-        
     }
-    
+
+    private void DealIns(string ins){
+        switch (ins)
+        {
+            case "GoAhead":
+                Debug.Log("GoAhead");
+                GoAhead();
+                break;
+            case "Light":
+                Debug.Log("GoLight");
+                GoLight();
+                break;
+            case "LeftRotation":
+                Debug.Log("LeftRotation");
+                GoLeftRotation();
+                break;
+            case "RightRotation":
+                Debug.Log("RightRotation");
+                GoRightRotaiton();
+                break;
+            case "Jump":
+                Debug.Log("Jump");
+                break;
+            case "Function":
+                Function();
+                Debug.Log("Function");
+                break;
+        }
+    }
+
+
     void GoAhead()
     {
         StartCoroutine(move());
@@ -138,10 +153,10 @@ public class ExecuteState : MonoBehaviour {
         var targe = CurrentVector.transform.position;
         agent.SetDestination(targe);
         //应该获取当前的我的位置 到目标位置的路径
-      
+
         yield return new WaitForSeconds(0.3f);
         setAnimator(false, true, false);
-        Debug.Log("Move");
+        //Debug.Log("Move");
     }
     
     
@@ -154,16 +169,33 @@ public class ExecuteState : MonoBehaviour {
         yield return new WaitForSeconds(0.2f);
 
         var passObj = GameObject.FindWithTag(Content.PASS_GAME_TOLLGATE);
-        if (Vector3.Distance(passObj.transform.position,Main_Character.transform.position) < 1){
-            var nextTollagteName = passObj.GetComponent<NextObj>().NextTollGate;  
+        if ( Vector3.Distance(passObj.transform.position,Main_Character.transform.position) < 1){
+            var nextTollagteName = passObj.GetComponent<NextObj>().NextTollGate;
             SceneManager.LoadScene(nextTollagteName);
-
         }
         yield return new WaitForSeconds(0.3f);
         setAnimator(false,true,false);
-        Debug.Log("light");
     }
 
+
+
+    void GoLeftRotation(){
+        StartCoroutine(leftRotation());
+    }
+
+    IEnumerator leftRotation(){
+        yield return new WaitForSeconds(0.1f);
+        Main_Character.transform.Rotate(new Vector3(0,90,0));
+    }
+
+    void GoRightRotaiton(){
+        StartCoroutine(rightRotation());
+    }
+
+    IEnumerator rightRotation(){
+        yield return new WaitForSeconds(0.1f);
+        Main_Character.transform.Rotate(new Vector3(0, -90, 0));
+    }
 
 
     void Function()

@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{AEEA9D74-1794-0D73-17CC-786706269912}</ProjectGuid>
+    <ProjectGuid>{45617880-7B57-4D06-AEE6-F74D4E49FCCF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -51,16 +51,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Resource\C&amp;C_Pack\Goblin_rouge\Script\Goblin_ro_ctrl.cs" />
+     <Compile Include="Assets\Resources\C&amp;C_Pack\Goblin_rouge\Script\Goblin_ro_ctrl.cs" />
+     <Compile Include="Assets\Resources\TexturePainter ( Place Me Out of Resources)\ColorSelector\ColorSelector.cs" />
+     <Compile Include="Assets\Resources\TexturePainter ( Place Me Out of Resources)\Scripts\GUIManager.cs" />
+     <Compile Include="Assets\Resources\TexturePainter ( Place Me Out of Resources)\Scripts\ModelViewControls.cs" />
+     <Compile Include="Assets\Resources\TexturePainter ( Place Me Out of Resources)\Scripts\TexturePainter.cs" />
+     <Compile Include="Assets\Script\btns.cs" />
+     <Compile Include="Assets\Script\ChooseTerms.cs" />
+     <Compile Include="Assets\Script\CImage.cs" />
+     <Compile Include="Assets\Script\ColorManager.cs" />
      <Compile Include="Assets\Script\Content.cs" />
      <Compile Include="Assets\Script\ExecuteState.cs" />
      <Compile Include="Assets\Script\FunctionUI.cs" />
+     <Compile Include="Assets\Script\manager2.cs" />
      <Compile Include="Assets\Script\NextObj.cs" />
+     <Compile Include="Assets\Script\SettingMeterial.cs" />
+     <Compile Include="Assets\Script\start1Content.cs" />
      <None Include="Assets\FreeVoxelGirl\ReadMe.txt" />
-     <None Include="Assets\Resource\C&amp;C_Pack\Goblin_rouge\readme.txt" />
+     <None Include="Assets\Resources\C&amp;C_Pack\Goblin_rouge\readme.txt" />
      <None Include="Assets\Model\Materials\test.shader" />
  <Reference Include="Facebook.Unity.Settings">
- <HintPath>/Users/assassin/Desktop/SmartBot - RQ/SmartBot/Library/FacebookSDK/Facebook.Unity.Settings.dll</HintPath>
+ <HintPath>/Users/assassin/Desktop/SmartBot - RQ/SmartBot_2018_4_5/Library/FacebookSDK/Facebook.Unity.Settings.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
