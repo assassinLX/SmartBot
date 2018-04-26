@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2017
+# Visual Studio for Mac
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartBot_2018_4_5", "SmartBot_2018_4_5.csproj", "{53451F45-2081-954B-0956-53A57DC31179}"
 EndProject
 Global

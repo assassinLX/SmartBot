@@ -23,7 +23,7 @@ public class FunctionUI : MonoBehaviour {
 
         foreach (var btn in instractBtns)
         {
-            btn.onClick.AddListener(() => instractRespond(btn.name));//添加监听，进栈
+            btn.onClick.AddListener(() => instractRespond(btn.name));
         }
         //可能会变动------------------------------------------------
             for(var i = 0;i < Fct_background.transform.GetComponentsInChildren<Button>().Length; i++)
@@ -62,7 +62,7 @@ public class FunctionUI : MonoBehaviour {
         Debug.Log(name);
         var index = int.Parse(name.Substring(name.Length-1, 1));
         popInCurrentStack(index);
-    }//出栈，点击指令，删除指令
+    }
 
     private void popInCurrentStack(int index)
     {
@@ -79,9 +79,9 @@ public class FunctionUI : MonoBehaviour {
                 }
             }
         }
-    }//点击指令出栈之后，后面的往前移动
+    }
 
-    private void chooseCurrentinstractStack(GameObject gameObj,   //选择当前的指令栈，变色
+    private void chooseCurrentinstractStack(GameObject gameObj,
         GameObject setGameObjectColor, string [] CurrentStack)
     {
         this.currentStack = CurrentStack;
@@ -102,11 +102,11 @@ public class FunctionUI : MonoBehaviour {
             }
             image.color = new Color( 0.76f , 0.76f, 0.76f, 1);
         }
-    }//遍历
+    }
     
     private void instractRespond(string name)
     {
-        if(GetCurrentInstractNumber() >= this.currentStack.Length)//判断当前指令的数目
+        if(GetCurrentInstractNumber() >= this.currentStack.Length)
         {
             return;
         }
@@ -121,7 +121,7 @@ public class FunctionUI : MonoBehaviour {
                 }
             }
         }
-    }//增加当前栈的复用性，进栈后判断为空的数量是否大于本身，就代表全部为空
+    }
     
     private int GetCurrentInstractNumber()
     {
@@ -139,7 +139,7 @@ public class FunctionUI : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        UpdateUI();//更新UI
+        UpdateUI();
     }
 
     private void UpdateUI()

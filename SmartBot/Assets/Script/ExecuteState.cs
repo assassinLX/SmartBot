@@ -28,6 +28,7 @@ public class ExecuteState : MonoBehaviour
     public Animator controller;
 
     private Quaternion StartRotation;
+
     private void Awake()
     {
         isRun = State.stop;
