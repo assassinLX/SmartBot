@@ -9,10 +9,12 @@ using UnityEngine.SceneManagement;
 public class ExecuteState : MonoBehaviour
 {
     public Vector3 StarPosition;
+
     public GameObject CurrentVector;
     public NavMeshAgent agent;
 
     public Button Btn_State;
+
     private CImage CImage_State;
 
     public enum State
@@ -23,6 +25,7 @@ public class ExecuteState : MonoBehaviour
 
     public string[] Main;
     public string[] Sub_Main;
+    public List<string> UniteStack;
 
     public GameObject Main_Character;
     public Animator controller;
@@ -36,6 +39,7 @@ public class ExecuteState : MonoBehaviour
         Btn_State.onClick.AddListener(() => Execute());
         StartRotation = new Quaternion(0, 0, 0, 0);
         StarPosition = new Vector3(-1.62f, -5.56f, 1.63f);
+        UniteStack = new List<string>();
     }
 
     private void Start()
@@ -62,155 +66,135 @@ public class ExecuteState : MonoBehaviour
         {
             this.isRun = State.runFinish;
         }
-        agent.isStopped = true;
-        Main_Character.transform.SetPositionAndRotation(StarPosition, StartRotation);
+
+        isCreateInstruct = false;
+        isExecute = false;
+        index = 0;
         StopAllCoroutines();
-        setAnimator(false, true, false);
     }
+
+    private bool isExecute = false;
 
     private void Update()
     {
         if (this.isRun == State.run)
         {
+            //print("运行时");
             //"停止";
             CImage_State.displaySprite("运行时");
         }
         else if (this.isRun == State.stop)
         {
+            //print("停止");
             //"运行";
             CImage_State.displaySprite("开始运行");
         }
         else
         {
+            //print("运行完成");
             //"运行完毕";
             CImage_State.displaySprite("运行完成");
         }
 
         if (this.isRun == State.runFinish || this.isRun == State.stop)
         {
-
             return;
         }
         else
         {
-            StartCoroutine(UpdateRun(this.Main));
-          
-        }
-
-    }
-
-    private IEnumerator UpdateRun(string[] currentStack)
-    {
-        this.isRun = State.runFinish;
-        foreach (var item in currentStack)
-        {
-            DealIns(item);
-            yield return new WaitForSeconds(0.9f);
+            //1,创建出 指令集;
+            createInstruct();
+            //2,添加循环标示;
+            //3,处理指令
+            if(isExecute == false){
+                executeInstruct();
+                isExecute = true;
+            }
 
         }
+
     }
 
-    private void DealIns(string ins){
-        switch (ins)
-        {
-            case "GoAhead":
-                Debug.Log("GoAhead");
-                GoAhead();
-                break;
-            case "Light":
-                Debug.Log("GoLight");
-                GoLight();
-                break;
-            case "LeftRotation":
-                Debug.Log("LeftRotation");
-                GoLeftRotation();
-                break;
-            case "RightRotation":
-                Debug.Log("RightRotation");
-                GoRightRotaiton();
-                break;
-            case "Jump":
-                Debug.Log("Jump");
-                break;
-            case "Function":
-                Function();
-                Debug.Log("Function");
-                break;
+    bool isCreateInstruct = false;
+
+    private void createInstruct(){
+        if (isCreateInstruct){
+            return;
+        }else{
+            clearInstruct();
+            for (int i = 0; i < Main.Length; i++)
+            {
+                if (Main[i] == "Function")
+                {
+                    var str = "ins";
+                    UniteStack.Add(str);
+                    for (int t = 0; t < Sub_Main.Length; t++)
+                    {
+                        if (Sub_Main[t] != null)
+                        {
+                            UniteStack.Add(Sub_Main[t]);
+                        }
+                    }
+                }
+                else
+                {
+                    if(Main[i] != null){
+                        UniteStack.Add(Main[i]);
+                    }
+                }
+            }
+            isCreateInstruct = true;
+        }
+    }
+
+    private void clearInstruct(){
+        var len = UniteStack.Count;
+        for (int i = 0; i < len;i++){
+            UniteStack.RemoveAt(0);
         }
     }
 
 
-    void GoAhead()
-    {
-        StartCoroutine(move());
-    }
-    
-    IEnumerator move()
-    {
-        setAnimator(true, false, false);
-        yield return new WaitForSeconds(0.2f);
+    public int index = 0;
+    public int pre = -1;
 
-        agent.isStopped = false;
-        var targe = CurrentVector.transform.position;
-        agent.SetDestination(targe);
-        //应该获取当前的我的位置 到目标位置的路径
-
-        yield return new WaitForSeconds(0.3f);
-        setAnimator(false, true, false);
-        //Debug.Log("Move");
-    }
-    
-    
-    void GoLight(){
-        StartCoroutine(light());
-    }
-
-    IEnumerator light(){
-        setAnimator(false,false,true);
-        yield return new WaitForSeconds(0.2f);
-
-        var passObj = GameObject.FindWithTag(Content.PASS_GAME_TOLLGATE);
-        if ( Vector3.Distance(passObj.transform.position,Main_Character.transform.position) < 1){
-            var nextTollagteName = passObj.GetComponent<NextObj>().NextTollGate;
-            SceneManager.LoadScene(nextTollagteName);
+    private void executeInstruct(){
+        if (index >= UniteStack.Count) {
+            Debug.Log("应该切换状态");
+            this.isRun = State.runFinish;
+            return;
         }
-        yield return new WaitForSeconds(0.3f);
-        setAnimator(false,true,false);
+        if(UniteStack[index] == null){
+            return;
+        }
+        if(UniteStack[index] == "ins"){
+            index++;
+            pre = index;
+        }
+        if(UniteStack[index] == "Function"){
+            index = pre;
+        }
+        executeCurrentInstruct();
     }
 
+    private void executeCurrentInstruct(){
+        Debug.Log("executeCurrentInstruct : " + UniteStack[index]);
 
-
-    void GoLeftRotation(){
-        StartCoroutine(leftRotation());
+        //延时函数：
+        StartCoroutine(callBackInstruct());
     }
 
-    IEnumerator leftRotation(){
-        yield return new WaitForSeconds(0.1f);
-        Main_Character.transform.Rotate(new Vector3(0,90,0));
-    }
-
-    void GoRightRotaiton(){
-        StartCoroutine(rightRotation());
-    }
-
-    IEnumerator rightRotation(){
-        yield return new WaitForSeconds(0.1f);
-        Main_Character.transform.Rotate(new Vector3(0, -90, 0));
-    }
-
-
-    void Function()
+    private IEnumerator callBackInstruct()
     {
-        StartCoroutine(UpdateRun(this.Sub_Main));
+        yield return new WaitForSeconds(2);
+        if(index < UniteStack.Count){
+            index++;
+        }
+        executeInstruct();
     }
 
 
-    private void setAnimator(bool isRun,bool isIdle,bool isJump)
-    {
-        this.controller.SetBool("isRun",isRun);
-        this.controller.SetBool("isIdle", isIdle);
-        this.controller.SetBool("isJump", isJump);
-    }
+
 
 
 }
