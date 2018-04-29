@@ -4,17 +4,14 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-
+using DG.Tweening;
 
 public class ExecuteState : MonoBehaviour
 {
-    public Vector3 StarPosition;
-
-    public GameObject CurrentVector;
-    public NavMeshAgent agent;
+    public GameObject changeScenePanel;
+    public Button changeSceneBtn;
 
     public Button Btn_State;
-
     private CImage CImage_State;
 
     public enum State
@@ -38,8 +35,9 @@ public class ExecuteState : MonoBehaviour
         CImage_State = Btn_State.transform.GetComponent<CImage>();
         Btn_State.onClick.AddListener(() => Execute());
         StartRotation = new Quaternion(0, 0, 0, 0);
-        StarPosition = new Vector3(-1.62f, -5.56f, 1.63f);
         UniteStack = new List<string>();
+        changeSceneBtn.onClick.AddListener(() => NextScene());
+        changeScenePanel.SetActive(false);
     }
 
     private void Start()
@@ -66,14 +64,21 @@ public class ExecuteState : MonoBehaviour
         {
             this.isRun = State.runFinish;
         }
+        Resetting();
+    }
 
+	private void Resetting()
+	{
         isCreateInstruct = false;
         isExecute = false;
         index = 0;
         StopAllCoroutines();
-    }
+        Main_Character.transform.position = new Vector3(0, 0, 0);
+        setAnimator(false, true, false);
+        Main_Character.transform.rotation = StartRotation;
+	}
 
-    private bool isExecute = false;
+	private bool isExecute = false;
 
     private void Update()
     {
@@ -126,8 +131,10 @@ public class ExecuteState : MonoBehaviour
             {
                 if (Main[i] == "Function")
                 {
-                    var str = "ins";
-                    UniteStack.Add(str);
+                    if(Sub_Main[0] != null){
+                        var str = "ins";
+                        UniteStack.Add(str);
+                    }
                     for (int t = 0; t < Sub_Main.Length; t++)
                     {
                         if (Sub_Main[t] != null)
@@ -168,7 +175,10 @@ public class ExecuteState : MonoBehaviour
             return;
         }
         if(UniteStack[index] == "ins"){
-            index++;
+            if (index < UniteStack.Count)
+            {
+                index++;
+            }
             pre = index;
         }
         if(UniteStack[index] == "Function"){
@@ -178,23 +188,154 @@ public class ExecuteState : MonoBehaviour
     }
 
     private void executeCurrentInstruct(){
-        Debug.Log("executeCurrentInstruct : " + UniteStack[index]);
-
-        //延时函数：
-        StartCoroutine(callBackInstruct());
+        //处理指令:
+        dealInstruct(UniteStack[index]);
     }
 
-    private IEnumerator callBackInstruct()
-    {
-        yield return new WaitForSeconds(2);
+    private void callBackInstruct(){
         if(index < UniteStack.Count){
             index++;
         }
         executeInstruct();
     }
 
+    private void dealInstruct(string ins){
+        switch (ins)
+        {
+            case "GoAhead":
+                GoAhead();
+                break;
+            case "Light":
+                GoLight();
+                break;
+            case "LeftRotation":
+                GoLeftRotation();
+                break;
+            case "RightRotation":
+                GoRightRotation();
+                break;
+            case "Jump":
+                GoJump();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void GoAhead(){
+        StartCoroutine(move());
+        Debug.Log("Move");
+    }
+
+    private IEnumerator move()
+    {
+        setAnimator(true, false, false);
+        yield return new WaitForSeconds(0.2f);
+        var currentMap = GameObject.FindWithTag("Map");
+        var nextStep = Main_Character.transform.forward + Main_Character.transform.position;
+        var precisenessStep = currentMap.transform.GetComponent<Map>().NextOnBlock.transform.position + new Vector3(0,0.5f,0);
+        if (currentMap != null){
+            if(Vector3.Distance(nextStep,precisenessStep) < 0.2f){
+                //此时说明我的下一步 可以走
+                Main_Character.transform.DOMove(precisenessStep,0.3f);
+            }
+        }
+        yield return new WaitForSeconds(0.3f);
+        setAnimator(false, true, false);
+        yield return new WaitForSeconds(0.3f);
+        callBackInstruct();
+    }
+
+    private void GoLight(){
+        StartCoroutine(_light());
+        Debug.Log("Light");
+    }
+
+    private IEnumerator _light(){
+        setAnimator(false, false, true);
+        yield return new WaitForSeconds(0.2f);
+
+        var currentMap = GameObject.FindWithTag("Map");
+        if(currentMap != null){
+            var CharacterOnBlock = currentMap.transform.GetComponent<Map>().CharacterOnBlock;
+            var NextOnBlock = currentMap.transform.GetComponent<Map>().NextOnBlock;
+            if(CharacterOnBlock == NextOnBlock){
+                changeScenePanel.SetActive(true);
+            }
+        }
+        yield return new WaitForSeconds(0.3f);
+        setAnimator(false, true, false);
+        yield return new WaitForSeconds(0.3f);
+        callBackInstruct();
+    }
+
+    private void GoLeftRotation(){
+        Debug.Log("LeftRotation");
+        StartCoroutine(leftRotation());
+    }
+
+    private IEnumerator leftRotation()
+    {
+        yield return new WaitForSeconds(0.1f);
+        Main_Character.transform.DOBlendableRotateBy(new Vector3(0, -90, 0), 0.3f);
+        yield return new WaitForSeconds(0.3f);
+        callBackInstruct();
+    }
+
+    private void GoRightRotation(){
+        Debug.Log("RightRotation");
+        StartCoroutine(righitRotation());
+    }
+
+    private IEnumerator righitRotation(){
+        yield return new WaitForSeconds(0.1f);
+        Main_Character.transform.DOBlendableRotateBy(new Vector3(0, 90, 0), 0.3f);
+        yield return new WaitForSeconds(0.3f);
+        callBackInstruct();
+    }
 
 
+    private void GoJump(){
+        Debug.Log("Jump");
+        StartCoroutine(jump());
+    }
+
+    private IEnumerator jump(){
+        setAnimator(false, false, true);
+        yield return new WaitForSeconds(0.2f);
+
+        var currentMap = GameObject.FindWithTag("Map");
+        var nextStep = Main_Character.transform.forward + Main_Character.transform.position;
+        var precisenessStep = currentMap.transform.GetComponent<Map>().NextOnBlock.transform.position + new Vector3(0, 0.5f, 0);
+        if (currentMap != null)
+        {
+            if (Vector3.Distance(nextStep, precisenessStep) < 1.0f)
+            {
+                //此时说明我的下一步 可以走
+                Main_Character.transform.DOMove(precisenessStep, 0.3f);
+            }
+        }
+
+        yield return new WaitForSeconds(0.3f);
+        setAnimator(false, true, false);
+        yield return new WaitForSeconds(0.3f);
+        callBackInstruct();
+    }
 
 
+    private void NextScene(){
+        var currentScene = SceneManager.GetActiveScene().buildIndex;
+        int nextScene = currentScene + 1;
+        if (nextScene < SceneManager.sceneCountInBuildSettings){
+            print(nextScene);
+            SceneManager.LoadScene(nextScene);
+        }
+    }
+
+    private void setAnimator(bool isRuning, bool isIdle, bool isJump)
+    {
+        this.controller.SetBool("isRun", isRuning);
+        this.controller.SetBool("isIdle", isIdle);
+        this.controller.SetBool("isJump", isJump);
+    }
 }

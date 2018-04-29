@@ -91,7 +91,8 @@ public class FunctionUI : MonoBehaviour {
             {
                 continue;
             }
-            image.color = new Color(0.74f,0.72f,0,1f);
+            //image.color = new Color(0.74f,0.72f,0,1f); //被选中的颜色
+            image.color = new Color(241.0f/255.0f,228.0f/255.0f,153.0f/255.0f);
         }
 
         foreach (var image in setGameObjectColor.transform.GetComponentsInChildren<Image>())
@@ -100,7 +101,8 @@ public class FunctionUI : MonoBehaviour {
             {
                 continue;
             }
-            image.color = new Color( 0.76f , 0.76f, 0.76f, 1);
+            //image.color = new Color( 0.76f , 0.76f, 0.76f, 1);  //没有被选择的颜色
+            image.color = new Color(204.0f/255.0f,189.0f/255.0f,144.0f/255.0f,1);
         }
     }
     
