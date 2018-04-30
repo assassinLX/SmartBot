@@ -29,6 +29,22 @@ public class ExecuteState : MonoBehaviour
 
     private Quaternion StartRotation;
 
+    public Map mapManager; 
+
+    private int realCookiesNumber;
+    private int getCookiesNum
+    {
+        set{
+            realCookiesNumber = value;
+            mapManager.personaeText.text = value + "/" + mapManager.Cookies.Length;
+        }
+        get{
+            return realCookiesNumber;
+        }
+    }
+
+
+
     private void Awake()
     {
         isRun = State.stop;
@@ -38,6 +54,8 @@ public class ExecuteState : MonoBehaviour
         UniteStack = new List<string>();
         changeSceneBtn.onClick.AddListener(() => NextScene());
         changeScenePanel.SetActive(false);
+        mapManager = GameObject.FindWithTag("Map").GetComponent<Map>();
+
     }
 
     private void Start()
@@ -76,7 +94,11 @@ public class ExecuteState : MonoBehaviour
         Main_Character.transform.position = new Vector3(0, 0, 0);
         setAnimator(false, true, false);
         Main_Character.transform.rotation = StartRotation;
+        mapManager.cookiesResetting();
+        getCookiesNum = 0;
 	}
+
+
 
 	private bool isExecute = false;
 
@@ -224,21 +246,27 @@ public class ExecuteState : MonoBehaviour
 
     private void GoAhead(){
         StartCoroutine(move());
-        Debug.Log("Move");
     }
 
     private IEnumerator move()
     {
         setAnimator(true, false, false);
         yield return new WaitForSeconds(0.2f);
-        var currentMap = GameObject.FindWithTag("Map");
-        var nextStep = Main_Character.transform.forward + Main_Character.transform.position;
-        var precisenessStep = currentMap.transform.GetComponent<Map>().NextOnBlock.transform.position + new Vector3(0,0.5f,0);
-        if (currentMap != null){
-            if(Vector3.Distance(nextStep,precisenessStep) < 0.2f){
-                //此时说明我的下一步 可以走
-                Main_Character.transform.DOMove(precisenessStep,0.3f);
+
+        if (mapManager != null){
+            Debug.Log("Move");
+            var nextStep = Main_Character.transform.forward + Main_Character.transform.position;
+            var nextStepCube = mapManager.getNextStepCube();
+
+            if(nextStepCube != null){
+                var precisenessStep = nextStepCube.transform.position + new Vector3(0,0.5f,0);
+                if (Vector3.Distance(nextStep,precisenessStep) < 0.2f)
+                {
+                    //此时说明我的下一步 可以走
+                    Main_Character.transform.DOMove(precisenessStep, 0.3f);
+                }
             }
+           
         }
         yield return new WaitForSeconds(0.3f);
         setAnimator(false, true, false);
@@ -251,21 +279,37 @@ public class ExecuteState : MonoBehaviour
         Debug.Log("Light");
     }
 
+
     private IEnumerator _light(){
         setAnimator(false, false, true);
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
 
-        var currentMap = GameObject.FindWithTag("Map");
-        if(currentMap != null){
-            var CharacterOnBlock = currentMap.transform.GetComponent<Map>().CharacterOnBlock;
-            var NextOnBlock = currentMap.transform.GetComponent<Map>().NextOnBlock;
-            if(CharacterOnBlock == NextOnBlock){
-                changeScenePanel.SetActive(true);
+        if(mapManager != null){
+            var cookies = mapManager.Cookies;
+            var cookiesResult = mapManager.cookiesResult;
+            var personaeText = mapManager.personaeText;
+
+            for (int i = 0; i < cookies.Length ;i++){
+                var curCookiesObjPos = cookies[i].transform.position;
+                //Debug.Log(Vector3.Distance(curCookiesObjPos, Main_Character.transform.position));
+                if(Vector3.Distance(curCookiesObjPos,Main_Character.transform.position) < 0.7f && cookiesResult[i] == false){
+                    //人物接触到了饼干
+                    getCookiesNum++;
+                    personaeText.text = getCookiesNum + "/" + cookies.Length;
+                    cookies[i].SetActive(false);
+                    cookiesResult[i] = true;
+                    if (getCookiesNum >= cookies.Length) {
+                        changeScenePanel.SetActive(true);
+                        this.isRun = State.runFinish;
+                        StopAllCoroutines();
+                        setAnimator(false, true, false);
+                    }
+                }
             }
         }
         yield return new WaitForSeconds(0.3f);
         setAnimator(false, true, false);
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.4f);
         callBackInstruct();
     }
 
@@ -298,37 +342,51 @@ public class ExecuteState : MonoBehaviour
     private void GoJump(){
         Debug.Log("Jump");
         StartCoroutine(jump());
+        
     }
 
     private IEnumerator jump(){
         setAnimator(false, false, true);
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
 
-        var currentMap = GameObject.FindWithTag("Map");
+        
         var nextStep = Main_Character.transform.forward + Main_Character.transform.position;
-        var precisenessStep = currentMap.transform.GetComponent<Map>().NextOnBlock.transform.position + new Vector3(0, 0.5f, 0);
-        if (currentMap != null)
+
+        if (mapManager != null)
         {
-            if (Vector3.Distance(nextStep, precisenessStep) < 1.0f)
+            var nextStepCube = mapManager.getNextStepCube();
+            if (nextStepCube != null)
             {
-                //此时说明我的下一步 可以走
-                Main_Character.transform.DOMove(precisenessStep, 0.3f);
+                
+                var precisenessStep = nextStepCube.transform.position + new Vector3(0, 0.5f, 0);
+
+                Debug.Log("跳 ： 下一步的距离 "+Vector3.Distance(nextStep, precisenessStep));
+                if (Vector3.Distance(nextStep, precisenessStep) < 1.0f && Vector3.Distance(nextStep, precisenessStep) >= 0.5f)
+                {
+                    //此时说明我的下一步 可以走
+                    Main_Character.transform.DOMove(precisenessStep, 0.3f);
+                }
             }
+          
         }
+
 
         yield return new WaitForSeconds(0.3f);
         setAnimator(false, true, false);
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.4f);
         callBackInstruct();
     }
 
 
     private void NextScene(){
+        Debug.Log("NextScene");
         var currentScene = SceneManager.GetActiveScene().buildIndex;
         int nextScene = currentScene + 1;
         if (nextScene < SceneManager.sceneCountInBuildSettings){
-            print(nextScene);
+            //print(nextScene);
             SceneManager.LoadScene(nextScene);
+        }else{
+            SceneManager.LoadScene("Start");
         }
     }
 
