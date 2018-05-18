@@ -11,8 +11,8 @@ public class CImage : Image {
             this.color = new Color(1, 1, 1, 0);
             this.sprite = null;
         }else{
-            this.sprite = (Sprite)Resources.Load("Icon/"+_name,typeof(Sprite));
+            this.sprite = (Sprite)Resources.Load("Icon/"+_name,typeof(Sprite));//在resourse里找到指令相对于的icon
             this.color = new Color(1, 1, 1, 1);
         }
     }
-}
+}  

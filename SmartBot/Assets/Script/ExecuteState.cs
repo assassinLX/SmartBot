@@ -32,6 +32,8 @@ public class ExecuteState : MonoBehaviour
     public Map mapManager; 
 
     private int realCookiesNumber;
+
+
     private int getCookiesNum
     {
         set{
@@ -47,9 +49,9 @@ public class ExecuteState : MonoBehaviour
 
     private void Awake()
     {
-        isRun = State.stop;
-        CImage_State = Btn_State.transform.GetComponent<CImage>();
-        Btn_State.onClick.AddListener(() => Execute());
+        isRun = State.stop;   //开始状态为stop
+        CImage_State = Btn_State.transform.GetComponent<CImage>();   //给Cimage赋值，获取CImage组件
+        Btn_State.onClick.AddListener(() => Execute());     //监听运行按钮，Ececute有三种状态
         StartRotation = new Quaternion(0, 0, 0, 0);
         UniteStack = new List<string>();
         changeSceneBtn.onClick.AddListener(() => NextScene());
@@ -66,12 +68,12 @@ public class ExecuteState : MonoBehaviour
 
     private void Execute()
     {
-        if (this.isRun == State.run)
+        if (this.isRun == State.run)  //运行状态为run
         {
-            this.isRun = State.stop;
+            this.isRun = State.stop;   
         }
-        else if (this.isRun == State.runFinish)
-        {
+        else if (this.isRun == State.runFinish)   
+        { 
             this.isRun = State.stop;
         }
         else
@@ -82,10 +84,10 @@ public class ExecuteState : MonoBehaviour
         {
             this.isRun = State.runFinish;
         }
-        Resetting();
+        Resetting();   //运行完毕，重置
     }
 
-	private void Resetting()
+	private void Resetting()   
 	{
         isCreateInstruct = false;
         isExecute = false;
@@ -101,24 +103,23 @@ public class ExecuteState : MonoBehaviour
 
 
 	private bool isExecute = false;
-
-    private void Update()
+    private void Update()   //执行状态
     {
         if (this.isRun == State.run)
         {
-            //print("运行时");
+            print("运行时");
             //"停止";
             CImage_State.displaySprite("运行时");
         }
         else if (this.isRun == State.stop)
         {
-            //print("停止");
+            print("停止");
             //"运行";
             CImage_State.displaySprite("开始运行");
         }
         else
         {
-            //print("运行完成");
+            print("运行完成");
             //"运行完毕";
             CImage_State.displaySprite("运行完成");
         }
@@ -131,6 +132,7 @@ public class ExecuteState : MonoBehaviour
         {
             //1,创建出 指令集;
             createInstruct();
+            Debug.Log("update createIns");
             //2,添加循环标示;
             //3,处理指令
             if(isExecute == false){
@@ -144,14 +146,14 @@ public class ExecuteState : MonoBehaviour
 
     bool isCreateInstruct = false;
 
-    private void createInstruct(){
+    private void createInstruct(){   //给统一栈赋值
         if (isCreateInstruct){
             return;
         }else{
             clearInstruct();
             for (int i = 0; i < Main.Length; i++)
             {
-                if (Main[i] == "Function")
+                if (Main[i] == "Function")  //主栈遇到function添加ins标记位置
                 {
                     if(Sub_Main[0] != null){
                         var str = "ins";
@@ -159,7 +161,7 @@ public class ExecuteState : MonoBehaviour
                     }
                     for (int t = 0; t < Sub_Main.Length; t++)
                     {
-                        if (Sub_Main[t] != null)
+                        if (Sub_Main[t] != null)    //从栈遇到function，就是function
                         {
                             UniteStack.Add(Sub_Main[t]);
                         }
@@ -187,7 +189,7 @@ public class ExecuteState : MonoBehaviour
     public int index = 0;
     public int pre = -1;
 
-    private void executeInstruct(){
+    private void executeInstruct(){     //执行 。统一栈的三种指令，普通指令，ins，function
         if (index >= UniteStack.Count) {
             Debug.Log("应该切换状态");
             this.isRun = State.runFinish;
@@ -209,7 +211,7 @@ public class ExecuteState : MonoBehaviour
         executeCurrentInstruct();
     }
 
-    private void executeCurrentInstruct(){
+    private void executeCurrentInstruct(){  
         //处理指令:
         dealInstruct(UniteStack[index]);
     }
@@ -255,7 +257,7 @@ public class ExecuteState : MonoBehaviour
 
         if (mapManager != null){
             Debug.Log("Move");
-            var nextStep = Main_Character.transform.forward + Main_Character.transform.position;
+            var nextStep = Main_Character.transform.forward + Main_Character.transform.position;//我的方向加我的位置
             var nextStepCube = mapManager.getNextStepCube();
 
             if(nextStepCube != null){
