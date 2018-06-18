@@ -7,17 +7,11 @@ public class Map : MonoBehaviour {
 
     public GameObject[] gameObjectMaps;
     public GameObject Main_Character;
-
     public GameObject[] Cookies;
-
     [HideInInspector]
     public bool[] cookiesResult;
     public Text personaeText;
-
-    public GameObject UniteUI;
-    public GameObject Mask;
     public GameObject [] Boms;
-
     public delegate void Active();
 	private void Awake()
 	{
@@ -72,10 +66,10 @@ public class Map : MonoBehaviour {
             yield return new WaitForSeconds(0.1f);
             StartCoroutine(setMapPosition(cube,curPos)); 
         }
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.8f);
         var curObjPos = Main_Character.transform.position - new Vector3(0,30,0);
-        Main_Character.transform.DOMove(curObjPos,0.3f);
-        yield return new WaitForSeconds(0.3f);
+        Main_Character.transform.DOMove(curObjPos,0.6f);
+        yield return new WaitForSeconds(0.2f);
         callBack();
     }
     private IEnumerator mapFromMoveUp(){
@@ -97,41 +91,34 @@ public class Map : MonoBehaviour {
              cube.transform.position = curPos;
         }
         //恢复
-        UniteUI = GameObject.Find("UniteUI");
+        var UniteUI = GameObject.Find("UniteUI");
         var Canvas = UniteUI.transform.FindChild("Canvas");
-        Mask = (GameObject)Resources.Load("Mask/MaskPanel");
+        var Mask = (GameObject)Resources.Load("Mask/MaskPanel");
         var maskObj = GameObject.Instantiate(Mask,Canvas.transform);
-
         foreach(var cube in gameObjectMaps){
             var curPos = cube.transform.position + new Vector3(0,30,0);
             yield return new WaitForSeconds(0.1f);
             StartCoroutine(setMapPosition(cube,curPos));   
         }
-
         foreach(var cube in Boms){
             var curPos = cube.transform.position + new Vector3(0,30,0);
             yield return new WaitForSeconds(0.1f);
             StartCoroutine(setMapPosition(cube,curPos));   
         }
-
+        var endObjPos = Main_Character.transform.position + new Vector3(0,30,0);
+        Main_Character.transform.DOMove(endObjPos,0.6f);
         foreach(var cube in Cookies){
             var curPos = cube.transform.position + new Vector3(0,30,0);
             yield return new WaitForSeconds(0.1f);
             StartCoroutine(setMapPosition(cube,curPos));   
         }
-
-        yield return new WaitForSeconds(0.3f);
-        var endObjPos = Main_Character.transform.position + new Vector3(0,30,0);
-        Main_Character.transform.DOMove(endObjPos,0.3f);
+        yield return new WaitForSeconds(0.9f);
         Destroy(maskObj);
     }
 
-
     private IEnumerator setMapPosition(GameObject curObj,Vector3 pos){
-        yield return new WaitForSeconds(0.3f);
-        curObj.transform.DOMove(pos,0.3f);
+        yield return new WaitForSeconds(0.6f);
+        curObj.transform.DOMove(pos,0.6f);
     }
-
-
 
 }

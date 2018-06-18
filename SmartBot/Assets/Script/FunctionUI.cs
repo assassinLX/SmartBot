@@ -7,16 +7,10 @@ public class FunctionUI : MonoBehaviour {
 
     public GameObject Fct_background;  
     public GameObject Sub_Fct_background;
-    
-
     public string[] instractStack;  //主栈
     public string[] subInstractStack;   //从栈
-    public Button[] instractBtns;    
-
+    public Button[] instractBtns;
     public string[] currentStack;   
-
-   // private Button chooseLever;
-
 
     private void Awake()
     {

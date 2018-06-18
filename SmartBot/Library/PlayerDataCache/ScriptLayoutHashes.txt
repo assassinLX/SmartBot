@@ -1,4 +1,4 @@
-OSXStandalone
+Android
 dc07d7ad69b399a46e92c483bf1c04ca UnityEngine.Analytics.dll:UnityEngine.Analytics.AnalyticsTracker
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationPlayableAsset
 9f07aaefd0255462bb6e4f9e5da6b2d4 UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationTrack
@@ -140,4 +140,4 @@ c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.VR.WSA.Spa
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.VR.WSA.SpatialMappingRenderer
 b8f057a5d96b66234b3230a0d800dcf6 Assembly-CSharp.dll:.CImage
 d71728867b24c94ed4949fbeed2fac2e Assembly-CSharp.dll:.CustomUVS
-d9de04daa319232458e8d57a238aecaa Assembly-CSharp.dll:.Map
+4fa4c9d10ec459e3f91094504915a07f Assembly-CSharp.dll:.Map
